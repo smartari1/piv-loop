@@ -1,0 +1,117 @@
+#!/bin/bash
+
+# PIV Loop System Installer
+# Downloads and installs the PIV loop system from GitHub
+# Usage: ./install-piv-loop.sh [target-directory]
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Configuration
+REPO_URL="https://github.com/smartari1/piv-loop.git"
+TEMP_DIR="/tmp/piv-loop-install-$$"
+
+# Target directory (default to current directory)
+TARGET_DIR="${1:-.}"
+
+# Resolve to absolute path
+TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
+
+echo -e "${GREEN}╔════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║     PIV Loop System Installer          ║${NC}"
+echo -e "${GREEN}╚════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "Target directory: ${YELLOW}$TARGET_DIR${NC}"
+echo ""
+
+# Check if git is available
+if ! command -v git &> /dev/null; then
+    echo -e "${RED}Error: git is not installed${NC}"
+    exit 1
+fi
+
+# Clone the repository
+echo -e "${YELLOW}[1/4]${NC} Cloning PIV loop repository..."
+git clone --depth 1 --quiet "$REPO_URL" "$TEMP_DIR"
+
+# Create directory structure
+echo -e "${YELLOW}[2/4]${NC} Creating directory structure..."
+mkdir -p "$TARGET_DIR/.claude/commands/core_piv_loop"
+mkdir -p "$TARGET_DIR/.claude/commands/github_bug_fix"
+mkdir -p "$TARGET_DIR/.claude/commands/validation"
+mkdir -p "$TARGET_DIR/.claude/reference"
+mkdir -p "$TARGET_DIR/.agents/plans"
+
+# Copy files
+echo -e "${YELLOW}[3/4]${NC} Copying PIV loop files..."
+
+# Core PIV loop commands
+cp "$TEMP_DIR/.claude/commands/core_piv_loop/"*.md "$TARGET_DIR/.claude/commands/core_piv_loop/"
+
+# GitHub bug fix commands
+cp "$TEMP_DIR/.claude/commands/github_bug_fix/"*.md "$TARGET_DIR/.claude/commands/github_bug_fix/"
+
+# Validation commands
+cp "$TEMP_DIR/.claude/commands/validation/"*.md "$TARGET_DIR/.claude/commands/validation/"
+
+# Root commands
+cp "$TEMP_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/" 2>/dev/null || true
+
+# PRD template (don't overwrite existing PRD.md)
+if [ ! -f "$TARGET_DIR/.claude/PRD.md" ]; then
+    cp "$TEMP_DIR/.claude/PRD.md" "$TARGET_DIR/.claude/PRD.md"
+    echo -e "  ${GREEN}✓${NC} Created PRD.md"
+else
+    cp "$TEMP_DIR/.claude/PRD.md" "$TARGET_DIR/.claude/PRD-template.md"
+    echo -e "  ${YELLOW}!${NC} PRD.md exists, saved template as PRD-template.md"
+fi
+
+# Diagram
+cp "$TEMP_DIR/PIVLoopDiagram.png" "$TARGET_DIR/.claude/" 2>/dev/null || true
+
+# Cleanup
+echo -e "${YELLOW}[4/4]${NC} Cleaning up..."
+rm -rf "$TEMP_DIR"
+
+# Summary
+echo ""
+echo -e "${GREEN}╔════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║     Installation Complete!             ║${NC}"
+echo -e "${GREEN}╚════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${GREEN}Installed commands:${NC}"
+echo ""
+echo "  Core PIV Loop:"
+echo "    /core_piv_loop:prime        - Load project context"
+echo "    /core_piv_loop:plan-feature - Create implementation plans"
+echo "    /core_piv_loop:execute      - Execute plans"
+echo ""
+echo "  Validation:"
+echo "    /validation:validate        - Validate implementation"
+echo "    /validation:code-review     - Review code"
+echo "    /validation:code-review-fix - Fix review issues"
+echo "    /validation:system-review   - System-wide review"
+echo "    /validation:execution-report - Generate report"
+echo ""
+echo "  GitHub Bug Fix:"
+echo "    /github_bug_fix:rca         - Root cause analysis"
+echo "    /github_bug_fix:implement-fix - Implement fix"
+echo ""
+echo "  Utilities:"
+echo "    /commit                     - Commit changes"
+echo "    /create-prd                 - Create PRD document"
+echo "    /init-project               - Initialize project"
+echo ""
+echo -e "${GREEN}Files created:${NC}"
+find "$TARGET_DIR/.claude" -type f \( -name "*.md" -o -name "*.png" \) | sed "s|$TARGET_DIR/||" | sort | sed 's/^/  /'
+echo ""
+echo -e "${YELLOW}Next steps:${NC}"
+echo "  1. Run /core_piv_loop:prime to load project context"
+echo "  2. Create your PRD with /create-prd (or edit .claude/PRD.md)"
+echo "  3. Plan features with /core_piv_loop:plan-feature"
+echo ""

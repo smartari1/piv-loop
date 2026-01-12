@@ -4,188 +4,429 @@ description: Initialize Project
 
 # Initialize PIV Loop System
 
-Set up the PIV (Prime-Implement-Validate) development workflow infrastructure for structured, context-aware development.
+Set up the PIV (Prime-Implement-Validate) development workflow infrastructure with **fully populated reference files** for fast, consistent development.
 
 ## Overview
 
-The PIV Loop is a systematic approach to software development that ensures:
-- **Continuity** across sessions via PRD and history tracking
-- **Quality** through validation at every step
-- **Alignment** with product requirements and user stories
-- **Traceability** of decisions and implementations
+This command does NOT just check if files exist - it **generates and validates content** to ensure:
+- Reference files contain actual, useful context from the codebase
+- Architecture documentation reflects the real project structure
+- Component and hook libraries are documented for reuse
+- API patterns are captured from existing code
+- All templates are ready for immediate use
 
-## Initialization Steps
+---
 
-### Step 1: Create Directory Structure
+## STEP 1: Create Directory Structure
 
-Ensure the following directories exist:
+Create all required directories:
 
-```
-.claude/
-├── PRD.md                 # Product Requirements Document (Source of Truth)
-├── INIT.md                # This initialization guide
-├── history/               # Session logs for continuity
-│   └── .gitkeep
-├── reference/             # Methodology and reference docs
-│   └── _methodology.md    # PIV Loop methodology guide
-└── commands/              # Slash commands
-    ├── core_piv_loop/     # PIV workflow commands
-    │   ├── prime.md
-    │   ├── plan-feature.md
-    │   └── execute.md
-    ├── validation/        # Validation commands
-    │   ├── validate.md
-    │   ├── code-review.md
-    │   ├── code-review-fix.md
-    │   ├── execution-report.md
-    │   └── system-review.md
-    └── github_bug_fix/    # Bug fix workflow
-        ├── rca.md
-        └── implement-fix.md
-
-.agents/
-└── plans/                 # Implementation plans storage
-    └── .gitkeep
-```
-
-Create missing directories:
 ```bash
 mkdir -p .claude/history .claude/reference .agents/plans
 touch .claude/history/.gitkeep .agents/plans/.gitkeep
 ```
 
-### Step 2: Initialize PRD (if needed)
-
-Check if `.claude/PRD.md` exists. If not, create it from the template or run `/create-prd` to generate one from conversation context.
-
-**PRD is the Source of Truth** - It contains:
-- Product vision and mission
-- User stories with acceptance criteria
-- Feature specifications
-- Implementation phases
-- Current sprint focus
-
-### Step 3: Create Session Log
-
-Create a new session log entry in `.claude/history/`:
-
+Required structure:
 ```
-.claude/history/YYYY-MM-DD-session-N.md
+.claude/
+├── PRD.md                    # Product Requirements Document (Source of Truth)
+├── INIT.md                   # Initialization guide
+├── PRD-template.md           # Template for creating PRDs
+├── history/                  # Session logs for continuity
+│   └── .gitkeep
+├── reference/                # **AUTO-GENERATED** context files
+│   ├── _methodology.md       # PIV Loop methodology
+│   ├── _architecture.md      # Project architecture (auto-generated)
+│   ├── _components.md        # Component library reference (auto-generated)
+│   ├── _hooks.md             # Hooks reference (auto-generated)
+│   ├── _api-patterns.md      # API patterns reference (auto-generated)
+│   └── _tech-stack.md        # Technology stack (auto-generated)
+└── commands/                 # Slash commands
+
+.agents/
+└── plans/                    # Implementation plans storage
+    └── .gitkeep
 ```
 
-Template:
+---
+
+## STEP 2: Generate Reference Files
+
+**CRITICAL**: Do not skip this step. Each reference file must contain ACTUAL content from the codebase.
+
+### 2.1 Generate `_architecture.md`
+
+Scan the codebase and create `.claude/reference/_architecture.md` with:
+
 ```markdown
-# Session Log: [DATE]
+# Project Architecture Reference
+
+> Auto-generated on [DATE]. Re-run `/init-project` to update.
+
+## Directory Structure
+
+[Scan and document the actual src/ or app/ directory structure]
+
+## Key Directories
+
+| Directory | Purpose | Key Files |
+|-----------|---------|-----------|
+| [path] | [description] | [important files] |
+
+## Architecture Patterns
+
+### Routing
+[Document the routing approach - Next.js App Router, Pages Router, etc.]
+
+### Data Flow
+[Document how data flows - API routes, server actions, etc.]
+
+### State Management
+[Document state management approach - React Query, Zustand, Redux, etc.]
+
+## Module Dependencies
+
+[Key module relationships and import patterns]
+```
+
+**To generate**:
+1. Run `find src -type d -maxdepth 3` or equivalent
+2. Identify key patterns from file structure
+3. Document actual architecture decisions visible in code
+
+### 2.2 Generate `_components.md`
+
+Scan components directory and create `.claude/reference/_components.md`:
+
+```markdown
+# Component Library Reference
+
+> Auto-generated on [DATE]. Re-run `/init-project` to update.
+
+## UI Components (Base/Atomic)
+
+| Component | Path | Props | Usage |
+|-----------|------|-------|-------|
+| [Name] | [path] | [key props] | [when to use] |
+
+## Feature Components
+
+| Component | Path | Purpose |
+|-----------|------|---------|
+| [Name] | [path] | [description] |
+
+## Layout Components
+
+| Component | Path | Purpose |
+|-----------|------|---------|
+| [Name] | [path] | [description] |
+
+## Component Patterns
+
+### Standard Props Pattern
+[Document common prop patterns used across components]
+
+### Composition Pattern
+[Document how components are composed]
+
+## Reusable Component Examples
+
+[Include 2-3 examples of well-structured components from the codebase]
+```
+
+**To generate**:
+1. Glob for `components/**/*.tsx` or similar
+2. Extract component names and categorize
+3. Document key props from interfaces
+
+### 2.3 Generate `_hooks.md`
+
+Scan hooks directory and create `.claude/reference/_hooks.md`:
+
+```markdown
+# Hooks Reference
+
+> Auto-generated on [DATE]. Re-run `/init-project` to update.
+
+## Data Fetching Hooks
+
+| Hook | Purpose | Returns | Example |
+|------|---------|---------|---------|
+| [name] | [description] | [return type] | [usage example] |
+
+## UI/State Hooks
+
+| Hook | Purpose | Returns |
+|------|---------|---------|
+| [name] | [description] | [return type] |
+
+## Utility Hooks
+
+| Hook | Purpose | Returns |
+|------|---------|---------|
+| [name] | [description] | [return type] |
+
+## Hook Patterns
+
+### Query Hook Pattern
+[Document the standard pattern for data fetching hooks]
+
+### Mutation Hook Pattern
+[Document the standard pattern for mutation hooks]
+
+## Creating New Hooks
+
+[Guidelines based on existing patterns in the codebase]
+```
+
+**To generate**:
+1. Glob for `hooks/**/*.ts` or `**/use*.ts`
+2. Extract hook names and signatures
+3. Document return types and usage patterns
+
+### 2.4 Generate `_api-patterns.md`
+
+Scan API routes and create `.claude/reference/_api-patterns.md`:
+
+```markdown
+# API Patterns Reference
+
+> Auto-generated on [DATE]. Re-run `/init-project` to update.
+
+## API Route Structure
+
+[Document the API directory structure]
+
+## Standard API Route Template
+
+\`\`\`typescript
+// Standard pattern extracted from existing routes
+[Include actual code pattern from the codebase]
+\`\`\`
+
+## Authentication Pattern
+
+[Document how auth is handled in API routes]
+
+## Validation Pattern
+
+[Document how request validation is done - Zod schemas, etc.]
+
+## Error Handling Pattern
+
+[Document standard error handling approach]
+
+## Response Format
+
+\`\`\`typescript
+// Standard response format
+[Document actual response patterns]
+\`\`\`
+
+## Existing Endpoints
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| [GET/POST/etc] | [path] | [description] |
+```
+
+**To generate**:
+1. Glob for `api/**/*.ts` or `app/api/**/route.ts`
+2. Extract common patterns from routes
+3. Document authentication, validation, error handling approaches
+
+### 2.5 Generate `_tech-stack.md`
+
+Analyze package.json and create `.claude/reference/_tech-stack.md`:
+
+```markdown
+# Technology Stack Reference
+
+> Auto-generated on [DATE]. Re-run `/init-project` to update.
+
+## Core Framework
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [name] | [version] | [purpose] |
+
+## Frontend Libraries
+
+| Library | Version | Usage |
+|---------|---------|-------|
+| [name] | [version] | [how it's used] |
+
+## Backend Libraries
+
+| Library | Version | Usage |
+|---------|---------|-------|
+| [name] | [version] | [how it's used] |
+
+## Development Tools
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| [name] | [version] | [purpose] |
+
+## Key Configurations
+
+### TypeScript Config
+[Key tsconfig settings]
+
+### Build Config
+[Key build/bundler settings]
+
+### Linting/Formatting
+[ESLint, Prettier configs]
+
+## Environment Variables
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| [name] | [yes/no] | [description] |
+```
+
+**To generate**:
+1. Parse package.json dependencies
+2. Check for config files (tsconfig.json, etc.)
+3. Document environment variables from .env.example
+
+---
+
+## STEP 3: Verify `_methodology.md` Content
+
+Ensure `.claude/reference/_methodology.md` exists with complete PIV Loop documentation.
+
+**Required sections**:
+- Introduction and Philosophy
+- The Three Phases (Prime, Implement, Validate)
+- Document Types (PRD, Session Logs, Plans)
+- Workflow Patterns
+- Quality Gates
+- Anti-Patterns to Avoid
+
+If missing or incomplete, create with full methodology content.
+
+---
+
+## STEP 4: Initialize PRD
+
+Check if `.claude/PRD.md` exists:
+
+**If missing**:
+- Inform user that PRD is required
+- Suggest running `/create-prd` after discussing requirements
+- Or manually create from `.claude/PRD-template.md`
+
+**If exists**:
+- Verify it has required sections (Executive Summary, User Stories, etc.)
+- Check for stale content (last updated date)
+- Report status to user
+
+---
+
+## STEP 5: Create Session Log
+
+Create initial session log at `.claude/history/[DATE]-session-1.md`:
+
+```markdown
+# Session Log: [DATE] Session 1
 
 ## Session Context
-- **Focus**: [What we're working on]
-- **PRD Reference**: [Relevant user stories or features]
-- **Previous Session**: [Link if applicable]
+- **Focus**: PIV Loop System Initialization
+- **PRD Reference**: [Status of PRD]
+- **Previous Session**: None (first tracked session)
 
-## Work Completed
-- [ ] Task 1
-- [ ] Task 2
+## Initialization Results
 
-## Decisions Made
-- Decision 1: [Rationale]
+### Directory Structure
+- [x] .claude/history/ created
+- [x] .claude/reference/ created
+- [x] .agents/plans/ created
 
-## Issues Encountered
-- Issue 1: [Resolution or status]
+### Reference Files Generated
+- [x] _architecture.md - [status]
+- [x] _components.md - [status]
+- [x] _hooks.md - [status]
+- [x] _api-patterns.md - [status]
+- [x] _tech-stack.md - [status]
+- [x] _methodology.md - [status]
+
+### PRD Status
+- [PRD status and any actions needed]
 
 ## Next Steps
-- [ ] Follow-up task 1
-- [ ] Follow-up task 2
-
-## Files Modified
-- `path/to/file.ts` - [Description of change]
+- [ ] Review generated reference files for accuracy
+- [ ] Create/update PRD if needed
+- [ ] Run `/core_piv_loop:prime` to start first development session
 ```
 
-### Step 4: Verify Reference Documentation
+---
 
-Ensure `.claude/reference/_methodology.md` exists with PIV Loop methodology documentation.
+## STEP 6: Update CLAUDE.md Reference
 
-## Quick Reference
+Ensure CLAUDE.md references the new reference files:
 
-### PIV Loop Commands
-
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/core_piv_loop:prime` | Load context and prepare for work | Start of every session |
-| `/core_piv_loop:plan-feature` | Create implementation plan | Before non-trivial features |
-| `/core_piv_loop:execute` | Execute plan with validation | When ready to implement |
-
-### Validation Commands
-
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/validation:validate` | Full project validation | Before commits, after changes |
-| `/validation:code-review` | Technical code review | Pre-commit quality check |
-| `/validation:code-review-fix` | Fix review findings | After code review |
-| `/validation:execution-report` | Generate implementation report | After execution phase |
-| `/validation:system-review` | Analyze implementation vs plan | Process improvement |
-
-### Bug Fix Workflow
-
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/github_bug_fix:rca` | Root cause analysis | When investigating bugs |
-| `/github_bug_fix:implement-fix` | Implement RCA fix | After RCA is complete |
-
-## Post-Initialization Checklist
-
-After running this command, verify:
-
-- [ ] `.claude/PRD.md` exists and is current
-- [ ] `.claude/history/` directory exists
-- [ ] `.claude/reference/_methodology.md` exists
-- [ ] `.agents/plans/` directory exists
-- [ ] CLAUDE.md references PIV workflow correctly
-
-## Starting Your First Session
-
-After initialization, run:
-
-```
-/core_piv_loop:prime
+```markdown
+### Key Reference Files
+| File | Purpose |
+|------|---------|
+| `.claude/PRD.md` | Product Requirements Document |
+| `.claude/reference/_architecture.md` | Project architecture |
+| `.claude/reference/_components.md` | Component library |
+| `.claude/reference/_hooks.md` | Hooks reference |
+| `.claude/reference/_api-patterns.md` | API patterns |
+| `.claude/reference/_tech-stack.md` | Technology stack |
 ```
 
-This will:
-1. Load the PRD context
-2. Review recent session history
-3. Check for pending plans
-4. Prepare you for productive work
+---
 
-## Workflow Summary
+## Output Summary
+
+After initialization, display:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    PIV LOOP WORKFLOW                        │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────┐    ┌───────────┐    ┌──────────┐              │
-│  │  PRIME  │───▶│   PLAN    │───▶│ EXECUTE  │              │
-│  └─────────┘    └───────────┘    └──────────┘              │
-│       │              │                │                     │
-│       ▼              ▼                ▼                     │
-│  Load PRD &     Create PRD-      Implement &               │
-│  History        aligned plan     Validate                   │
-│                                                             │
-│                      │                                      │
-│                      ▼                                      │
-│               ┌──────────┐                                  │
-│               │ VALIDATE │                                  │
-│               └──────────┘                                  │
-│                      │                                      │
-│                      ▼                                      │
-│               Update PRD &                                  │
-│               Log Session                                   │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+## PIV Loop Initialization Complete
+
+### Reference Files Generated
+| File | Status | Content |
+|------|--------|---------|
+| _architecture.md | [Created/Updated] | [X directories, Y patterns documented] |
+| _components.md | [Created/Updated] | [X components documented] |
+| _hooks.md | [Created/Updated] | [X hooks documented] |
+| _api-patterns.md | [Created/Updated] | [X endpoints, Y patterns documented] |
+| _tech-stack.md | [Created/Updated] | [X dependencies documented] |
+| _methodology.md | [Verified] | PIV Loop methodology |
+
+### PRD Status
+[PRD status - exists/missing, sections verified]
+
+### Next Steps
+1. Review generated reference files for accuracy
+2. [Create PRD if missing]
+3. Run `/core_piv_loop:prime` to start development
+
+### Quick Commands
+- `/core_piv_loop:prime` - Start session with full context
+- `/core_piv_loop:plan-feature` - Plan a new feature
+- `/validation:validate` - Run project validation
 ```
+
+---
+
+## Maintenance
+
+Re-run `/init-project` periodically to:
+- Update reference files with new components/hooks/patterns
+- Refresh architecture documentation after major changes
+- Ensure all reference files stay current
+
+---
 
 ## Notes
 
-- **Always check PRD before starting work** - Features may have existing user stories
-- **Update PRD when completing features** - Keep it current with reality
-- **Log significant decisions** - Future sessions depend on history
-- **Validate before committing** - Quality gates prevent regression
+- Reference files are **context for Claude**, not user documentation
+- They should be concise and actionable
+- Focus on patterns and reusability
+- Include actual code examples from the codebase
+- Keep files under 500 lines for optimal context usage
